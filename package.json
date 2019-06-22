@@ -1,0 +1,40 @@
+{
+  "name": "hapi_login",
+  "version": "0.0.1",
+  "description": "User Registration and Login with Hapi",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./dist/server.js",
+    "tsc": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avtarnanrey/hapi_login.git"
+  },
+  "author": "Avtar Nanrey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/avtarnanrey/hapi_login/issues"
+  },
+  "homepage": "https://github.com/avtarnanrey/hapi_login#readme",
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "hapi": "^18.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^1.6.5",
+    "sequelize": "^5.8.10"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/dotenv": "^6.1.1",
+    "@types/hapi": "^18.0.2",
+    "@types/jsonwebtoken": "^8.3.2",
+    "@types/node": "^12.0.8",
+    "@types/sequelize": "^4.28.3",
+    "dotenv": "^8.0.0",
+    "nodemon": "^1.19.1",
+    "tslib": "^1.10.0",
+    "typescript": "^3.5.2"
+  }
+}
