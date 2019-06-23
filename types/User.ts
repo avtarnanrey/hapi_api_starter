@@ -1,3 +1,4 @@
+import * as Hapi from "hapi";
 import { Model, BuildOptions } from "sequelize";
 
 export class Users extends Model {
@@ -13,13 +14,34 @@ export class Users extends Model {
 }
 
 export type UserStatic = typeof Model & {
-    new (values?: object, options?: BuildOptions): Users;
+    new(values?: object, options?: BuildOptions): Users;
 }
 
-export interface AddUserRequest {
-    first_name: string;
-    last_name: string;
-    email: string;
-    password: string;
-    phone: string;
+export interface ICredentials extends Hapi.AuthCredentials {
+    id: string;
+}
+
+export interface IRequestAuth extends Hapi.RequestAuth {
+    credentials: ICredentials;
+}
+
+export interface IRequest extends Hapi.Request {
+    auth: IRequestAuth;
+}
+
+export interface ILoginRequest extends IRequest {
+    payload: {
+        email: string;
+        password: string;
+    }
+}
+
+export interface IRegisterRequest extends IRequest {
+    payload: {
+        first_name: string;
+        last_name: string;
+        email: string;
+        password: string;
+        phone: string;
+    }
 }
