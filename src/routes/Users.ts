@@ -2,6 +2,7 @@
 import * as bcrypt from "bcrypt";
 import { User } from "../models/User";
 import * as Hapi from "hapi";
+import { AddUserRequest } from "../../types/User";
 
 process.env.SECRET_KEY = "secret";
 
@@ -11,7 +12,7 @@ exports.plugin = {
             method: "POST",
             path: "/register",
             handler: (req: any, h: any) => {
-                const userData = {
+                const userData: AddUserRequest = {
                     first_name: req.payload.first_name,
                     last_name: req.payload.last_name,
                     email: req.payload.email,
@@ -24,7 +25,7 @@ exports.plugin = {
                         email: req.payload.email
                     }
                 })
-                .then((user: any) => {
+                .then((user: any) => {                    
                     if(!user) {
                         bcrypt.hash(req.payload.password, 10, (err, hash) => {
                             userData.password = hash;
@@ -46,24 +47,6 @@ exports.plugin = {
                 })
             }
         });
-
-        server.route({
-            method: 'GET',
-            path: '/test',
-            handler: (request: any, h: any) => {
-
-                return 'hello, world';
-            }
-        });
-
-        server.route({
-             method: "POST",
-             path: "/test",
-              handler: (request: Hapi.Request, h: any) => {
-               return "This is a POST method";
-              }
-            });
-
     },
     name: "api"
 }

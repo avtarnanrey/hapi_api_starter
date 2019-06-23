@@ -63,4 +63,4 @@ typings/
 # remove sensitive information
 .env
 
-dist/*
+dist/**/*
