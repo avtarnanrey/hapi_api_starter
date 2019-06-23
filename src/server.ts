@@ -1,8 +1,9 @@
 import * as Hapi from "hapi";
+import * as Settings from "./settings";
 
 const server: Hapi.Server = new Hapi.Server({
     host: "localhost",
-    port: 1313,
+    port: Settings.envVars.PORT,
     routes: {
         cors: true
     }
