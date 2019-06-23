@@ -49,48 +49,57 @@ export default class UserController {
                 email: req.payload.email
             }
         })
-        .then((user: any) => {
-            if (user) {
-                if (bcrypt.compareSync(req.payload.password, user.password)) {
-                    let token = jwt.sign(user.dataValues, Settings.envVars.SECRET_KEY, {
-                        expiresIn: 1440
-                    })
-                    return h.response({
-                        message: "Login successful"
-                    }).state(Settings.envVars.COOKIE_NAME, {token: token});
+            .then((user: any) => {
+                if (user) {
+                    if (bcrypt.compareSync(req.payload.password, user.password)) {
+                        let token = jwt.sign(user.dataValues, Settings.envVars.SECRET_KEY, {
+                            expiresIn: Settings.envVars.TOKEN_EXPIRY
+                        })
+                        return h.response({
+                            message: "Login successful"
+                        }).state((Settings.envVars.COOKIE_NAME), { token: token });
+                    } else {
+                        return;
+                    }
                 } else {
-                    return;
+                    return { error: "User does not exist" };
                 }
-            } else {
-                return { error: "User does not exist"};
-            }
-        })
-        .catch(err => {
-            return { error: err };
-        })
+            })
+            .catch(err => {
+                return { error: err };
+            })
     }
 
     public async profile(req: IRequest, h: Hapi.ResponseToolkit) {
-        console.log(req.state);
-        var decoded = jwt.verify(
-            req.state.appState.token,
-            Settings.envVars.SECRET_KEY
-        );
-        
-        return User.findOne({
-            where: {
-                id: (decoded as any).id
+        if (req.state[Settings.envVars.COOKIE_NAME] && req.state[Settings.envVars.COOKIE_NAME].token) {
+            var decoded = jwt.verify(
+                req.state[Settings.envVars.COOKIE_NAME].token,
+                Settings.envVars.SECRET_KEY
+            );
+
+            return User.findOne({
+                where: {
+                    id: (decoded as any).id
+                }
+            })
+                .then(user => {
+                    if (user) {
+                        return user;
+                    } else {
+                        return { error: "User does not exist" };
+                    }
+                })
+                .catch(err => {
+                    return { error: err };
+                });
+        } else {
+            return {
+                error: "User not logged in!"
             }
-        })
-        .then(user => {
-            if (user) {
-                return user;
-            } else {
-                return { error: "User does not exist"};
-            }
-        })
-        .catch ( err => {
-            return { error: err };
-        })
+        }
+    }
+
+    public async logout(req: IRequest, h: Hapi.ResponseToolkit) {
+        return h.response("User logged out!").unstate(Settings.envVars.COOKIE_NAME).code(200);
     }
 }

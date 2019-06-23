@@ -19,7 +19,13 @@ exports.plugin = {
             method: "GET",
             path: "/profile",
             handler: new UserController().profile 
-        })
+        });
+        
+        server.route({
+            method: "GET",
+            path: "/logout",
+            handler: new UserController().logout 
+        });
     },
     name: "users"
 }

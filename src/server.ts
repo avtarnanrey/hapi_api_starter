@@ -21,7 +21,7 @@ const init = async () => {
 
     // Init server.state()
     server.state(Settings.envVars.COOKIE_NAME, {
-        ttl: 1000 * 60 * 60 * 24,
+        ttl: Settings.envVars.TOKEN_EXPIRY as number || 1440,
         encoding: "base64json",
         isSecure: Settings.envVars.ENV === "production"
     })
