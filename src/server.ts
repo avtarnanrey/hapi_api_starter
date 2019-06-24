@@ -19,6 +19,14 @@ const init = async () => {
         }
     )
 
+    await server.register(require("./routes/IDX"),
+        {
+            routes: {
+                prefix: "/idxfetch"
+            }
+        }
+    )
+
     // Init server.state()
     server.state(Settings.envVars.COOKIE_NAME, {
         ttl: Settings.envVars.TOKEN_EXPIRY as number || 1440,
