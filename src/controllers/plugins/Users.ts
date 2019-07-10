@@ -1,21 +1,20 @@
 import * as bcrypt from "bcrypt";
-import * as Hapi from "hapi";
-import { IRegisterRequest, IRequest, ILoginRequest } from "../../../types/User";
-import { User } from "../../models/User";
+import * as Hapi from "@hapi/hapi";
+import { IRegisterRequest, IRequest, ILoginRequest } from "../../types";
+import { User } from "../../models/user";
 import * as Settings from "../../settings";
-import * as jwt from "jsonwebtoken";
+import { generateToken } from "../../utils";
 
-export default class UserController {
+export class UserController {
 
     public async registerUser(req: IRegisterRequest, h: Hapi.ResponseToolkit) {
-        const userData = {
+        const payload = {
             first_name: req.payload.first_name,
             last_name: req.payload.last_name,
             email: req.payload.email,
             password: req.payload.password,
             phone: req.payload.phone
         }
-        console.log(User);
         return User.findOne({
             where: {
                 email: req.payload.email
@@ -24,8 +23,8 @@ export default class UserController {
             .then((user: any) => {
                 if (!user) {
                     bcrypt.hash(req.payload.password, 10, (err, hash) => {
-                        userData.password = hash;
-                        return User.create(userData)
+                        payload.password = hash;
+                        return User.create(payload)
                             .then((user: any) => {
                                 return true;
                             })
@@ -33,7 +32,7 @@ export default class UserController {
                                 return "error: " + err
                             })
                     })
-                    return { status: userData.email + " Registered!" }
+                    return { status: payload.email + " Registered!" }
                 } else {
                     return { error: "User already exists" }
                 }
@@ -52,51 +51,49 @@ export default class UserController {
             .then((user: any) => {
                 if (user) {
                     if (bcrypt.compareSync(req.payload.password, user.password)) {
-                        let token = jwt.sign(user.dataValues, Settings.envVars.SECRET_KEY, {
-                            expiresIn: Settings.envVars.TOKEN_EXPIRY
-                        })
+                        let tokenUser = {
+                            id: user.dataValues.id,
+                            first_name: user.dataValues.first_name,
+                            last_name: user.dataValues.last_name,
+                            email: user.dataValues.email,
+                            useExp: new Date().getTime() + 1000 * 60 * 30
+                        }
+                        let token = generateToken(tokenUser)
                         return h.response({
                             message: "Login successful"
-                        }).state((Settings.envVars.COOKIE_NAME), { token: token });
+                        }).header("Authenticate", JSON.stringify("JWT " + token), {override: true});
                     } else {
-                        return;
+                        return {
+                            error: "Password did not match!"
+                        };
                     }
                 } else {
                     return { error: "User does not exist" };
                 }
             })
-            .catch(err => {
+            .catch((err: any) => {
                 return { error: err };
             })
     }
 
     public async profile(req: IRequest, h: Hapi.ResponseToolkit) {
-        if (req.state[Settings.envVars.COOKIE_NAME] && req.state[Settings.envVars.COOKIE_NAME].token) {
-            var decoded = jwt.verify(
-                req.state[Settings.envVars.COOKIE_NAME].token,
-                Settings.envVars.SECRET_KEY
-            );
-
-            return User.findOne({
-                where: {
-                    id: (decoded as any).id
+        return User.findOne({
+            where: {
+                id: req.params.id
+            }
+        })
+            .then((user: any) => {
+                if (user) {
+                    if (delete user.dataValues.password) {
+                        return user;
+                    }
+                } else {
+                    return { error: "User does not exist" };
                 }
             })
-                .then(user => {
-                    if (user) {
-                        return user;
-                    } else {
-                        return { error: "User does not exist" };
-                    }
-                })
-                .catch(err => {
-                    return { error: err };
-                });
-        } else {
-            return {
-                error: "User not logged in!"
-            }
-        }
+            .catch((err: any) => {
+                return { error: err };
+            });
     }
 
     public async logout(req: IRequest, h: Hapi.ResponseToolkit) {
