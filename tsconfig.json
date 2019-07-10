@@ -28,8 +28,8 @@
         ]
     },
     "include": [
-        "./**/*.tsx",
-        "./**/*.ts"
+        "./src/**/*.tsx",
+        "./src/**/*.ts"
     ],
     "exclude": [
         "./dist",
