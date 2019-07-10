@@ -6,12 +6,14 @@ exports.plugin = {
         server.route({
             method: "POST",
             path: "/register",
+            options: { auth: false },
             handler: new UserController().registerUser
         });
 
         server.route({
             method: "POST",
             path: "/login",
+            options: { auth: false },
             handler: new UserController().login
         });
 

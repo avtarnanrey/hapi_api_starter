@@ -2,7 +2,7 @@ import * as Hapi from "@hapi/hapi";
 const Inert = require("@hapi/inert");
 import * as Settings from "./settings";
 import { IRequest } from "./types";
-const UserHandler = require("./routes/route/Users");
+const UserHandler = require("./controllers/users.controller");
 import * as JWTAuth from "hapi-auth-jwt2";
 import { renewToken } from "./utils";
 
