@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../database/db";
-import { UserStatic } from "../../types/User";
+import { sequelize } from "../../database/db";
+import { UserStatic } from "../../types";
 
 export const User = <UserStatic>sequelize.define("User", {
     id: {
